@@ -14,27 +14,35 @@ E.COLI <-fasta.seqlengths("https://raw.githubusercontent.com/markziemann/SLE712_
 str(E.COLI)
 #read the festa file
 E.COLI<-read.fasta("Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.cds.all.fa")
-E.COLI <- readDNAStringSet("Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.cds.all.fa")
 #selecting gene of interest
 geneofinterest <-extractROWS(E.COLI,10)
 str(geneofinterest)
 as.list(geneofinterest)
 #determining the length
-str(E.COLI,10)
-DNAStringSet(E.COLI,10)
-as.list(geneofinterest)
+seqinr:: getLength(E.COLI)
 #proportion of GC
-extractseqs(E.COLIseq)
+extractseqs (geneofinterest)
 #question3
 #performing blast
 myblastn_tab
 res <- rBLAST::makeblastdb ("Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.cds.all.fa")
 #sequence matching
+res <- makeblastdb(myseqs=E.COLI, db="Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.cds.all.fa")
+str(res)
+res
+head(res)
+#determing first 3 hits
+Hits <- as.character(res$seqid[1:3])
+Hits
+#best matching sequences
 db <- read.fasta("Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.cds.all.fa")
-str(db[1:10])
+str(db)
+str(db[1:6])
 head(names(db))
+#extraction of top hits
 myseqs <- db[which(names(db) %in% Hits)]
-myseqs <- c(myseqs,E.COLI) 
-
-      
+myseqs <-c(myseqs,E.COLI)
+seqinr:: write.fasta (myseq,names = names(myseqs), file.out="myseqs.fa")
+str(myseqs)  
+#names of sequence of first top last hit
 
