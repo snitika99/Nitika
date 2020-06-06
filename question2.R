@@ -1,66 +1,29 @@
-library("seqinr")
-library("R.utils")
-library("rBLAST")
-library("ape")
-library("ORFik")
-library("Biostrings")
-source("https://raw.githubusercontent.com/markziemann/SLE712_files/master/bioinfo_asst3_part2_files/mutblast_functions.R")
-
 #question1
-
 #E.COLI GENE SEQUENCE
 download.file("ftp://ftp.ensemblgenomes.org/pub/bacteria/release-42/fasta/bacteria_0_collection/escherichia_coli_str_k_12_substr_mg1655/cds/Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.cds.all.fa.gz",destfile = "Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.cds.all.fa.gz")
-
 #DECOMPRESS
 R.utils::gunzip("Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.cds.all.fa.gz",overwrite=TRUE)
-
 #Blast database
-library("rBLAST")
 makeblastdb("Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.cds.all.fa",dbtype = "nucl","-parse_seqids")
-
 #Sequences present
 str("Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.cds.all.fa.gz")
 seqinr::getLength("Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.cds.all.fa.gz")
-
 #question2
-
 #download and reading sequence length festa file
 E.COLI <-seqinr::read.fasta("https://raw.githubusercontent.com/markziemann/SLE712_files/master/bioinfo_asst3_part2_files/sample.fa")
 str(E.COLI)
-
 #read the festa file
 E.COLI<-seqinr::read.fasta("Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.cds.all.fa")
-
 #selecting gene of interest
 geneofinterest <- E.COLI[[10]]
-
+str(geneofinterest)
 #determining the length
 seqinr:: getLength(geneofinterest)
-
 #proportion of GC
 seqinr::GC(geneofinterest)
-
 #question3
 myblastn_tab
-res <- myblastn_tab(myseq = E.COLI, db = "Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.cds.all.fa")
+res <- myblastn_tab(myseq = E.COLI, db = "https://raw.githubusercontent.com/markziemann/SLE712_files/master/bioinfo_asst3_part2_files/sample.fa")
 str(res)
+res
 head(res)
-
-
-#determing first 3 hits
-Hits <- as.character(res$sseqid[1:3])
-Hits
-
-#best matching sequences
-db <- read.fasta("Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.cds.all.fa")
-str(db)
-str(db[1:6])
-head(names(db))
-
-#extraction of top hits
-myseqs <- db[which(names(db) %in% Hits)]
-myseqs <-c(myseqs,E.COLI)
-seqinr:: write.fasta (E.COLI,names = names(myseqs), file.out="myseqs.fa")
-str(myseqs)
-
-
