@@ -4,6 +4,7 @@ library("rBLAST")
 library("ape")
 library("ORFik")
 library("Biostrings")
+library("GenomicRanges")
 source("https://raw.githubusercontent.com/markziemann/SLE712_files/master/bioinfo_asst3_part2_files/mutblast_functions.R")
 
 #question1
@@ -62,5 +63,47 @@ myseqs <- db[which(names(db) %in% Hits)]
 myseqs <-c(myseqs,E.COLI)
 seqinr:: write.fasta (E.COLI,names = names(myseqs), file.out="myseqs.fa")
 str(myseqs)
+
+#extract the names of top hits 
+tophit <- db[which(names(db) %in% Hits[1])]
+tophit[1:3]
+
+#bit scores and percent
+seqinr::write.fasta(tophit,names=names(tophit),file.out = "tophit.fa")
+makeblastdb("tophit.fa",dbtype="nucl", "-parse_seqids")
+res <- myblastn(myseq = E.COLI, db = "tophit.fa")
+cat(res,fill=TRUE)
+
+#question 4 
+#read the fasta file
+E.coliismysequence <- readDNAStringSet("Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.cds.all.fa")
+#coordinates of ORFs 
+E.coliismysequence_orf <- ORFik::findORFs(E.coliismysequence,startCodon = "ATG", minimumLength = 100)
+#ORFs by location
+E.coliismysequence_orf <- GenomicRanges::sort(E.coliismysequence_orf)
+#for tophits
+tophit <- readDNAStringSet("tophit.fa")
+tophit_orf <- ORFik::findORFs(tophit,startCodon = "ATG", minimumLength = 100)
+tophit_orf <- GenomicRanges::sort(tophit_orf)
+tophit_orf
+#Extraction of sequences 
+mystart = start(E.coliismysequence_orf)[[1]][1]
+myend = end(E.coliismysequence_orf)[[1]][1]
+#ORFs sequence  
+ORF3a <- DNAStringSet(tophit,start = mystart[4], end = myend[4])
+ORF3a <- toString(ORF3a)
+ORF3a <- s2c(ORF3a)
+ORF3a
+#creating mutated copy 
+ORF3a_mut <- mutator(myseq=ORF3a,100)
+ORF3a_mut_ <- DNAString(c2s(ORF3a_mut))
+#Conversion string to character
+ORF3a_ <- DNAString(c2s(ORF3a))
+#Pairwise alignment 
+aln <- Biostrings::pairwiseAlignment(ORF3a_,ORF3a_mut_)
+pid(aln)
+#mismatched sequences
+nmismatch(aln)
+
 
 
