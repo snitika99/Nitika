@@ -43,36 +43,36 @@ seqinr::GC(geneofinterest)
 
 #question3
 myblastn_tab
-res <- myblastn_tab(myseq = E.COLI, db = "Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.cds.all.fa")
-str(res)
-head(res)
+pin <- myblastn_tab(myseq = E.COLI, db = "Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.cds.all.fa")
+str(pin)
+head(pin)
 
 
 #determing first 3 hits
-Hits <- as.character(res$sseqid[1:3])
+Hits <- as.character(pin$sseqid[1:3])
 Hits
 
-#best matching sequences
-db <- read.fasta("Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.cds.all.fa")
-str(db)
-str(db[1:6])
-head(names(db))
+#extraction of top hits 
+nit <- read.fasta("Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.cds.all.fa")
+str(nit)
+str(nit[1:6])
+head(names(nit))
 
-#extraction of top hits
-myseqs <- db[which(names(db) %in% Hits)]
+#extraction of names of top hits 
+myseqs <- nit[which(names(nit) %in% Hits)]
 myseqs <-c(myseqs,E.COLI)
 seqinr:: write.fasta (E.COLI,names = names(myseqs), file.out="myseqs.fa")
 str(myseqs)
 
 #extract the names of top hits 
-tophit <- db[which(names(db) %in% Hits[1])]
+tophit <- nit[which(names(nit) %in% Hits[1])]
 tophit[1:3]
 
 #bit scores and percent
 seqinr::write.fasta(tophit,names=names(tophit),file.out = "tophit.fa")
 makeblastdb("tophit.fa",dbtype="nucl", "-parse_seqids")
-res <- myblastn(myseq = E.COLI, db = "tophit.fa")
-cat(res,fill=TRUE)
+pin <- myblastn(myseq = E.COLI, db = "tophit.fa")
+cat(pin,fill=TRUE)
 
 #question 4 
 #read the fasta file
@@ -90,20 +90,41 @@ tophit_orf
 mystart = start(E.coliismysequence_orf)[[1]][1]
 myend = end(E.coliismysequence_orf)[[1]][1]
 #ORFs sequence  
-ORF3a <- DNAStringSet(tophit,start = mystart[4], end = myend[4])
-ORF3a <- toString(ORF3a)
-ORF3a <- s2c(ORF3a)
-ORF3a
+frames <- DNAStringSet(tophit,start = mystart[4], end = myend[4])
+frames <- toString(frames)
+frames <- s2c(frames)
+frames
 #creating mutated copy 
-ORF3a_mut <- mutator(myseq=ORF3a,100)
-ORF3a_mut_ <- DNAString(c2s(ORF3a_mut))
+frames_mut <- mutator(myseq=frames,100)
+frames_mut_1 <- DNAString(c2s(frames_mut))
 #Conversion string to character
-ORF3a_ <- DNAString(c2s(ORF3a))
+frames_ <- DNAString(c2s(frames))
 #Pairwise alignment 
-aln <- Biostrings::pairwiseAlignment(ORF3a_,ORF3a_mut_)
+aln <- Biostrings::pairwiseAlignment(frames_,frames_mut_1)
 pid(aln)
 #mismatched sequences
 nmismatch(aln)
 
+#question 5
+#blast index
+write.fasta(frames,names="frames",file.out = "frames.fa")
+makeblastdb(file="frames.fa",dbtype = "nucl")
 
+#test with 100 mismatches
+ORF3a_mut <- mutator(myseq=ORF3a,100)
+res <- myblastn_tab(myseq = ORF3a_mut, db = "ORF3a.fa")
+res
 
+ORF3a_mut <- mutator(myseq=ORF3a,200)
+res <- myblastn_tab(myseq = ORF3a_mut, db = "ORF3a.fa")
+res
+
+ORF3a_mut <- mutator(myseq=ORF3a,300)
+res <- myblastn_tab(myseq = ORF3a_mut, db = "ORF3a.fa")
+res
+
+ORF3a_mut <- mutator(myseq=ORF3a,220)
+res <- myblastn_tab(myseq = ORF3a_mut, db = "ORF3a.fa")
+res
+
+plot()
